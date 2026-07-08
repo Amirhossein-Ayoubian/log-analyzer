@@ -2,6 +2,7 @@ import re
 
 LOG_PATTERN = re.compile(
     r'(?P<ip>\S+)\s+'
+    r'.*?'
     r'\[(?P<timestamp>[^\]]+)\]\s+'
     r'"(?P<method>\S+)\s+'
     r'(?P<endpoint>\S+)\s+'
