@@ -2,6 +2,29 @@ import argparse
 import os
 import sys
 
+from models import LogEntry
+
+def process_log_file(file_path):
+    """
+    Reads the log file line by line to process data.
+    """
+    total_lines = 0
+    corrupted_lines = 0
+    
+    with open(file_path, 'r', encoding='utf-8') as file:
+        for line in file:
+            total_lines += 1
+            
+            entry = LogEntry.parse_line(line.strip())
+            
+            if entry is None:
+                corrupted_lines += 1
+                continue
+                
+    print(f"--- Processing Statistics ---")
+    print(f"Total lines read: {total_lines}")
+    print(f"Corrupted lines skipped: {corrupted_lines}")
+
 def main():
     parser = argparse.ArgumentParser(
         description="CLI tool for analyzing and extracting insights from web server access logs."
@@ -20,6 +43,7 @@ def main():
         sys.exit(1)
         
     print(f"Success: File found! Preparing to process: {args.log_file}")
+    process_log_file(args.log_file)
 
 if __name__ == "__main__":
     main()
