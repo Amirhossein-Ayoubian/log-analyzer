@@ -41,3 +41,17 @@ class LogEntry:
             return None
         
         return cls(match.groupdict())
+    
+    def print_details(self, sample_number):
+        """
+        Prints the detailed attributes of the log entry in a readable format.
+        """
+        print(f"[Sample {sample_number}] Parsed Log Object Details:")
+        print(f"  - Client IP:  {self.ip}")
+        print(f"  - Timestamp:  {self.timestamp}")
+        print(f"  - Request:    {self.method} {self.endpoint} {self.protocol}")
+        print(f"  - Status:     {self.status}")
+        print(f"  - Body Bytes: {self.size}")
+        print(f"  - Referer:    {self.referer}")
+        print(f"  - User Agent: {self.user_agent}")
+        print("-" * 40)

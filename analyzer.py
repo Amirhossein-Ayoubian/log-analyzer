@@ -20,6 +20,10 @@ def process_log_file(file_path):
             if entry is None:
                 corrupted_lines += 1
                 continue
+
+            successful_count = total_lines - corrupted_lines
+            if successful_count <= 5:
+                entry.print_details(successful_count)
                 
     print(f"--- Processing Statistics ---")
     print(f"Total lines read: {total_lines}")
