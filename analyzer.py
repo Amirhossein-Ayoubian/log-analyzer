@@ -109,8 +109,8 @@ def save_json(file_path, total_lines, corrupted_lines, stats, detector, output_j
             "total_lines": total_lines,
             "corrupted_lines_skipped": corrupted_lines,
             "lines_filtered_out_by_time": filtered_out_lines,
-            "start_hour": start_hour,
-            "end_hour": end_hour,
+            "start_hour": str(start_hour) + ":00",
+            "end_hour": str(end_hour) + ":59",
         },
         "analytics": stats.to_dict(top_n=top_n),
         "security_anomalies": detector.to_dict()
