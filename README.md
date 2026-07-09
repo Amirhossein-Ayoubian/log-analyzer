@@ -79,10 +79,11 @@ The project follows the **Separation of Concerns (SoC)** and **Single Responsibi
 - Python 3.8+
 - matplotlib
 
-Navigate to the project root directory:
+Clone the repository:
 
 ```bash
-cd log_analyzer
+git clone https://github.com/Amirhossein_Ayoubian/log-analyzer.git
+cd log-analyzer
 ```
 
 Install dependencies:
