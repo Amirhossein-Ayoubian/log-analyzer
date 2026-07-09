@@ -29,3 +29,5 @@ class SecurityDetector:
         
         if not suspicious_found:
             print("  No suspicious Brute Force activity detected. Everything looks clean.")
+
+        print(f"=============================================================\n")

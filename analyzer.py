@@ -4,6 +4,7 @@ import sys
 
 from models import LogEntry
 from stats import LogStats
+from security import SecurityDetector
 
 def process_log_file(file_path):
     """
@@ -13,6 +14,7 @@ def process_log_file(file_path):
     corrupted_lines = 0
 
     stats = LogStats()
+    detector = SecurityDetector(threshold=5)
     
     with open(file_path, 'r', encoding='utf-8') as file:
         for line in file:
@@ -25,8 +27,10 @@ def process_log_file(file_path):
                 continue
             
             stats.update(entry)
+            detector.inspect(entry)
                 
     stats.print_report(total_lines, corrupted_lines)
+    detector.print_alerts()
 
 def main():
     parser = argparse.ArgumentParser(
