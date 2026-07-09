@@ -116,9 +116,14 @@ def save_json(file_path, total_lines, corrupted_lines, stats, detector, output_j
         "security_anomalies": detector.to_dict()
     }
     
-    with open(output_json, 'w', encoding='utf-8') as json_file:
+    os.makedirs("reports", exist_ok=True)
+
+    json_filename = os.path.basename(output_json)
+    report_path = os.path.join("reports", json_filename)
+
+    with open(report_path, 'w', encoding='utf-8') as json_file:
         json.dump(combined_report, json_file, indent=4, ensure_ascii=False)
-    print(f"\nSuccess: Structured JSON report saved to '{output_json}'\n")
+    print(f"\nSuccess: Structured JSON report saved to '{report_path}'\n")
 
 if __name__ == "__main__":
     main()

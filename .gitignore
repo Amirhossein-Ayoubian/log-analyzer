@@ -5,3 +5,5 @@ __pycache__/
 .vscode/
 *.png
 *.json
+test_logs/
+reports/
