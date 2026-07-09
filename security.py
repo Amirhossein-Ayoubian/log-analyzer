@@ -1,4 +1,5 @@
 from collections import Counter
+from models import TerminalColor
 
 class SecurityDetector:
     """
@@ -34,28 +35,22 @@ class SecurityDetector:
         """
         Prints colorized, high-visibility security alerts and infrastructure anomalies.
         """
-        BLUE = "\033[94m"
-        GREEN = "\033[92m"
-        YELLOW = "\033[93m"
-        RED = "\033[91m"
-        RESET = "\033[0m"
-        BOLD = "\033[1m"
-        DIM = "\033[2m"
+        C = TerminalColor
 
-        print(f"{YELLOW}{BOLD}🚨 Security Monitoring - Brute Force Detection{RESET} {DIM}(Threshold: > {self.auth_threshold} failures){RESET}")
+        print(f"{C.YELLOW}{C.BOLD}🚨 Security Monitoring - Brute Force Detection{C.RESET} {C.DIM}(Threshold: > {self.auth_threshold} failures){C.RESET}")
         
         suspicious_found = False
         for ip, failed_count in self.failed_login_counter.items():
             if failed_count > self.auth_threshold:
-                print(f"  {RED}{BOLD}[ALERT]{RESET} IP: {BOLD}{ip:<15}{RESET} -> {RED}{BOLD}{failed_count:<3}{RESET} failed auth attempts!")
+                print(f"  {C.RED}{C.BOLD}[ALERT]{C.RESET} IP: {C.BOLD}{ip:<15}{C.RESET} -> {C.RED}{C.BOLD}{failed_count:<3}{C.RESET} failed auth attempts!")
                 suspicious_found = True
         
         if not suspicious_found:
-            print(f"  {GREEN}✔ No suspicious Brute Force activity detected.{RESET}")
+            print(f"  {C.GREEN}✔ No suspicious Brute Force activity detected.{C.RESET}")
             
-        print(f"{BLUE}-------------------------------------------------------------{RESET}")
+        print(f"{C.BLUE}-------------------------------------------------------------{C.RESET}")
         
-        print(f"{RED}{BOLD}⚠️ Anomaly Detection - Automated 5xx Error Spikes{RESET} {DIM}(Threshold: > {self.error_spike_threshold}%){RESET}")
+        print(f"{C.RED}{C.BOLD}⚠️ Anomaly Detection - Automated 5xx Error Spikes{C.RESET} {C.DIM}(Threshold: > {self.error_spike_threshold}%){C.RESET}")
         
         spike_found = False
         for hour in sorted(self.hourly_total_counter.keys()):
@@ -65,13 +60,13 @@ class SecurityDetector:
             hourly_error_rate = (errors_hourly / total_hourly * 100) if total_hourly > 0 else 0.0
             
             if hourly_error_rate > self.error_spike_threshold:
-                print(f"  {RED}{BOLD}[CRITICAL]{RESET} Hour {hour}:00-{hour}:59 -> Error Rate: {RED}{BOLD}{hourly_error_rate:.2f}%{RESET} ({errors_hourly}/{total_hourly} requests failed)")
+                print(f"  {C.RED}{C.BOLD}[CRITICAL]{C.RESET} Hour {hour}:00-{hour}:59 -> Error Rate: {C.RED}{C.BOLD}{hourly_error_rate:.2f}%{C.RESET} ({errors_hourly}/{total_hourly} requests failed)")
                 spike_found = True
                 
         if not spike_found:
-            print(f"  {GREEN}✔ No server error spikes detected. Infrastructure is stable.{RESET}")
+            print(f"  {C.GREEN}✔ No server error spikes detected. Infrastructure is stable.{C.RESET}")
 
-        print(f"{BLUE}============================================================={RESET}")
+        print(f"{C.BLUE}============================================================={C.RESET}")
 
     def to_dict(self):
         """
