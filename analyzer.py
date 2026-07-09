@@ -8,12 +8,13 @@ from models import LogEntry
 from stats import LogStats
 from security import SecurityDetector
 
-def process_log_file(file_path, top_n, output_json):
+def process_log_file(file_path, top_n, output_json, start_hour, end_hour):
     """
     Reads the log file line by line to process data.
     """
     total_lines = 0
     corrupted_lines = 0
+    filtered_out_lines = 0
 
     stats = LogStats()
     detector = SecurityDetector(auth_threshold=5, error_spike_threshold=5.0)
@@ -33,14 +34,29 @@ def process_log_file(file_path, top_n, output_json):
                 corrupted_lines += 1
                 continue
             
+            try:
+                log_hour = int(entry.timestamp.split(':')[1])
+                
+                if start_hour is not None and log_hour < start_hour:
+                    filtered_out_lines += 1
+                    continue
+                
+                if end_hour is not None and log_hour > end_hour:
+                    filtered_out_lines += 1
+                    continue
+            except (IndexError, ValueError):
+                pass
+
             stats.update(entry)
             detector.inspect(entry)
                 
-    stats.print_report(total_lines, corrupted_lines, top_n=top_n)
+    stats.print_report(total_lines, corrupted_lines, filtered_out_lines, top_n=top_n, 
+                       start_hour=start_hour, end_hour=end_hour)
     detector.print_alerts()
 
     if output_json:
-        save_json(file_path, total_lines, corrupted_lines, stats, detector, output_json, top_n)
+        save_json(file_path, total_lines, corrupted_lines, stats, detector, output_json, top_n,
+                  filtered_out_lines, start_hour, end_hour)
 
 def main():
     parser = argparse.ArgumentParser(
@@ -62,6 +78,16 @@ def main():
         '--json', type=str, metavar='OUTPUT_FILE.json',
         help="Path to save the analyzed report in structured JSON format."
     )
+
+    parser.add_argument(
+        '--start', type=int, choices=range(0, 24), default=0, 
+        help="Start hour filter (0-23)."
+    )
+
+    parser.add_argument(
+        '--end', type=int, choices=range(0, 24), default=23,
+        help="End hour filter (0-23)."
+        )
     
     args = parser.parse_args()
     
@@ -70,14 +96,21 @@ def main():
         sys.exit(1)
         
     print(f"Success: File found! Preparing to process: {args.log_file}")
-    process_log_file(args.log_file, args.top, args.json)
+    process_log_file(
+        args.log_file, top_n=args.top, output_json=args.json, 
+        start_hour=args.start, end_hour=args.end
+    )
 
-def save_json(file_path, total_lines, corrupted_lines, stats, detector, output_json, top_n):
+def save_json(file_path, total_lines, corrupted_lines, stats, detector, output_json, top_n, 
+              filtered_out_lines, start_hour, end_hour):
     combined_report = {
         "metadata": {
             "file_processed": file_path,
             "total_lines": total_lines,
             "corrupted_lines_skipped": corrupted_lines,
+            "lines_filtered_out_by_time": filtered_out_lines,
+            "start_hour": start_hour,
+            "end_hour": end_hour,
         },
         "analytics": stats.to_dict(top_n=top_n),
         "security_anomalies": detector.to_dict()

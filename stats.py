@@ -29,7 +29,8 @@ class LogStats:
         except IndexError:
             pass
 
-    def print_report(self, total_lines, corrupted_lines, top_n=10):
+    def print_report(self, total_lines, corrupted_lines, filtered_out_lines, top_n=10,
+                     start_hour=0, end_hour=23):
         """
         Calculates and prints the final formatted statistical report.
         """
@@ -39,6 +40,8 @@ class LogStats:
         print(f"Total Lines Processed:  {total_lines}")
         print(f"Corrupted Lines Skipped: {corrupted_lines}")
         print(f"Successful Requests:    {self.total_requests}")
+        print(f"Filtered Out Lines: {filtered_out_lines}")
+        print(f"Start Hour: {start_hour} , End Hour: {end_hour}")
         print(f"-------------------------------------------------------------")
         print(f"Unique IP Addresses:     {len(self.unique_ips)}")
         print(f"Total Errors (4xx/5xx):  {self.error_count} ({error_rate:.2f}%)")
