@@ -8,7 +8,7 @@ from models import LogEntry
 from stats import LogStats
 from security import SecurityDetector
 
-def process_log_file(file_path, output_json):
+def process_log_file(file_path, top_n, output_json):
     """
     Reads the log file line by line to process data.
     """
@@ -36,11 +36,11 @@ def process_log_file(file_path, output_json):
             stats.update(entry)
             detector.inspect(entry)
                 
-    stats.print_report(total_lines, corrupted_lines)
+    stats.print_report(total_lines, corrupted_lines, top_n=top_n)
     detector.print_alerts()
 
     if output_json:
-        save_json(file_path, total_lines, corrupted_lines, stats, detector, output_json)
+        save_json(file_path, total_lines, corrupted_lines, stats, detector, output_json, top_n)
 
 def main():
     parser = argparse.ArgumentParser(
@@ -51,6 +51,11 @@ def main():
         'log_file', 
         type=str, 
         help="Path to the access log file that needs to be processed."
+    )
+
+    parser.add_argument(
+        '--top', type=int, default=10, 
+        help="Specify the number of top visited endpoints to display (Default: 10)."
     )
 
     parser.add_argument(
@@ -65,16 +70,16 @@ def main():
         sys.exit(1)
         
     print(f"Success: File found! Preparing to process: {args.log_file}")
-    process_log_file(args.log_file, args.json)
+    process_log_file(args.log_file, args.top, args.json)
 
-def save_json(file_path, total_lines, corrupted_lines, stats, detector, output_json):
+def save_json(file_path, total_lines, corrupted_lines, stats, detector, output_json, top_n):
     combined_report = {
         "metadata": {
             "file_processed": file_path,
             "total_lines": total_lines,
             "corrupted_lines_skipped": corrupted_lines,
         },
-        "analytics": stats.to_dict(),
+        "analytics": stats.to_dict(top_n=top_n),
         "security_anomalies": detector.to_dict()
     }
     

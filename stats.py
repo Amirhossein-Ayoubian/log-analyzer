@@ -29,7 +29,7 @@ class LogStats:
         except IndexError:
             pass
 
-    def print_report(self, total_lines, corrupted_lines):
+    def print_report(self, total_lines, corrupted_lines, top_n=10):
         """
         Calculates and prints the final formatted statistical report.
         """
@@ -43,9 +43,9 @@ class LogStats:
         print(f"Unique IP Addresses:     {len(self.unique_ips)}")
         print(f"Total Errors (4xx/5xx):  {self.error_count} ({error_rate:.2f}%)")
         print(f"-------------------------------------------------------------")
-        print(f"Top 10 Most Visited Endpoints:")
+        print(f"Top {top_n} Most Visited Endpoints:")
         
-        for rank, (endpoint, count) in enumerate(self.endpoint_counter.most_common(10), 1):
+        for rank, (endpoint, count) in enumerate(self.endpoint_counter.most_common(top_n), 1):
             print(f"  {rank:<2}. {endpoint:<30} -> {count} hits")
 
         print(f"-------------------------------------------------------------")
