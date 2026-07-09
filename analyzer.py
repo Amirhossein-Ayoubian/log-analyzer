@@ -1,6 +1,7 @@
 import argparse
 import os
 import sys
+import gzip
 
 from models import LogEntry
 from stats import LogStats
@@ -15,8 +16,13 @@ def process_log_file(file_path):
 
     stats = LogStats()
     detector = SecurityDetector(auth_threshold=5, error_spike_threshold=5.0)
+
+    is_gzip = file_path.endswith('.gz')
+    opener = gzip.open if is_gzip else open
+    mode = 'rt' if is_gzip else 'r'
+    print(f"Opening file using {'Gzip Stream' if is_gzip else 'Standard Stream'}...")
     
-    with open(file_path, 'r', encoding='utf-8') as file:
+    with opener(file_path, mode, encoding='utf-8') as file:
         for line in file:
             total_lines += 1
             
