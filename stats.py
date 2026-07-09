@@ -9,6 +9,7 @@ class LogStats:
         self.unique_ips = set()
         self.endpoint_counter = Counter()
         self.error_count = 0
+        self.hourly_counter = Counter()
 
     def update(self, entry):
         """
@@ -20,6 +21,12 @@ class LogStats:
         
         if 400 <= entry.status < 600:
             self.error_count += 1
+
+        try:
+            time_part = entry.timestamp.split(':')[1]
+            self.hourly_counter[time_part] += 1
+        except IndexError:
+            pass
 
     def print_report(self, total_lines, corrupted_lines):
         """
@@ -39,4 +46,12 @@ class LogStats:
         
         for rank, (endpoint, count) in enumerate(self.endpoint_counter.most_common(10), 1):
             print(f"  {rank}. {endpoint:<30} -> {count} hits")
+
+        print(f"-------------------------------------------------------------")
+        print(f"Hourly Traffic Distribution:")
+        
+        for hour in sorted(self.hourly_counter.keys()):
+            count = self.hourly_counter[hour]
+            print(f"  {hour}:00 - {hour}:59  -> {count:<5}")
+        
         print(f"=============================================================\n")
