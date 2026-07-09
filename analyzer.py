@@ -25,10 +25,6 @@ def process_log_file(file_path):
                 continue
             
             stats.update(entry)
-
-            successful_count = total_lines - corrupted_lines
-            if successful_count <= 5:
-                entry.print_details(successful_count)
                 
     stats.print_report(total_lines, corrupted_lines)
 

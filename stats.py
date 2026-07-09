@@ -1,4 +1,5 @@
 from collections import Counter
+import matplotlib.pyplot as plt
 
 class LogStats:
     """
@@ -45,13 +46,36 @@ class LogStats:
         print(f"Top 10 Most Visited Endpoints:")
         
         for rank, (endpoint, count) in enumerate(self.endpoint_counter.most_common(10), 1):
-            print(f"  {rank}. {endpoint:<30} -> {count} hits")
+            print(f"  {rank:<2}. {endpoint:<30} -> {count} hits")
 
         print(f"-------------------------------------------------------------")
         print(f"Hourly Traffic Distribution:")
         
-        for hour in sorted(self.hourly_counter.keys()):
+        for hour in sorted(hours := [f"{h:02d}" for h in range(24)]):
             count = self.hourly_counter[hour]
-            print(f"  {hour}:00 - {hour}:59  -> {count:<5}")
+            if count > 0:
+                print(f"  {hour}:00 - {hour}:59  -> {count:<5} requests")
+        
+        self._generate_hourly_chart()
         
         print(f"=============================================================\n")
+
+    def _generate_hourly_chart(self):
+        """
+        Generates and saves a histogram chart of hourly traffic distribution.
+        """
+        hours = [f"{h:02d}" for h in range(24)]
+        counts = [self.hourly_counter[h] for h in hours]
+
+        plt.figure(figsize=(12, 6))
+        plt.bar(hours, counts, color='royalblue', edgecolor='black', alpha=0.7)
+        
+        plt.title('Hourly Traffic Distribution', fontsize=14, fontweight='bold')
+        plt.xlabel('Hour of the Day (00 - 23)', fontsize=12)
+        plt.ylabel('Number of Requests', fontsize=12)
+        plt.grid(axis='y', linestyle='--', alpha=0.7)
+        
+        chart_filename = 'hourly_traffic.png'
+        plt.savefig(chart_filename, dpi=300, bbox_inches='tight')
+        plt.close()
+        print(f"Success: Hourly traffic chart saved as '{chart_filename}'")
