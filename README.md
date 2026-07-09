@@ -169,6 +169,18 @@ The analyzer automatically reports:
 
 ---
 
+## 🧠 Technical Decisions & Lessons Learned
+
+### 1. Architectural Strategy: Modular and Object-Oriented Design
+- **The Decision**: To ensure the main execution context remains clean and uncluttered, the entire application was engineered using highly localized, single-purpose functions. Furthermore, by introducing the **Object-Oriented Programming (OOP)** paradigm, data manipulation and subsequent statistical analyses became significantly more streamlined.
+- **The Outcome**: Separating the functional core from the dedicated statistics and security analytical layers maximizes code reusability and ensures effortless future extensibility.
+
+### 2. Major Bug Encountered & Resolution: Handling Corrupted Log Structures
+- **The Challenge**: During early execution, incoming malformed or corrupted log sequences consistently threatened to trigger unexpected system terminations or halt the processing stream entirely.
+- **The Fix**: To counteract this vulnerability, I exhaustively designed and tested specialized, robust Regular Expression patterns. This rigorous regex filtering successfully isolated the malformed data streams, preventing pipeline failures while drastically improving the accuracy and quality of data extraction.
+
+---
+
 # 📜 License
 
 This project is released under the **MIT License**.
