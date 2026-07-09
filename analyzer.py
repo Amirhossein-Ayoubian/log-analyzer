@@ -31,10 +31,6 @@ def process_log_file(file_path):
                 entry.print_details(successful_count)
                 
     stats.print_report(total_lines, corrupted_lines)
-    
-    print(f"--- Processing Statistics ---")
-    print(f"Total lines read: {total_lines}")
-    print(f"Corrupted lines skipped: {corrupted_lines}")
 
 def main():
     parser = argparse.ArgumentParser(
