@@ -95,7 +95,7 @@ def main():
         print(f"Error: The file '{args.log_file}' does not exist.", file=sys.stderr)
         sys.exit(1)
         
-    print(f"Success: File found! Preparing to process: {args.log_file}")
+    print(f"\nSuccess: File found! Preparing to process: {args.log_file}")
     process_log_file(
         args.log_file, top_n=args.top, output_json=args.json, 
         start_hour=args.start, end_hour=args.end
@@ -118,7 +118,7 @@ def save_json(file_path, total_lines, corrupted_lines, stats, detector, output_j
     
     with open(output_json, 'w', encoding='utf-8') as json_file:
         json.dump(combined_report, json_file, indent=4, ensure_ascii=False)
-    print(f"Success: Structured JSON report saved to '{output_json}'")
+    print(f"\nSuccess: Structured JSON report saved to '{output_json}'\n")
 
 if __name__ == "__main__":
     main()

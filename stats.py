@@ -30,38 +30,65 @@ class LogStats:
             pass
 
     def print_report(self, total_lines, corrupted_lines, filtered_out_lines, top_n=10,
-                     start_hour=0, end_hour=23):
+                     start_hour=None, end_hour=None):
         """
-        Calculates and prints the final formatted statistical report.
+        Calculates and prints a professionally styled, colorized statistical report.
         """
         error_rate = (self.error_count / self.total_requests * 100) if self.total_requests > 0 else 0.0
 
-        print(f"\n================ ACCESS LOG ANALYSIS REPORT ================")
-        print(f"Total Lines Processed:  {total_lines}")
-        print(f"Corrupted Lines Skipped: {corrupted_lines}")
-        print(f"Successful Requests:    {self.total_requests}")
-        print(f"Filtered Out Lines: {filtered_out_lines}")
-        print(f"Start Hour: {start_hour} , End Hour: {end_hour}")
-        print(f"-------------------------------------------------------------")
-        print(f"Unique IP Addresses:     {len(self.unique_ips)}")
-        print(f"Total Errors (4xx/5xx):  {self.error_count} ({error_rate:.2f}%)")
-        print(f"-------------------------------------------------------------")
-        print(f"Top {top_n} Most Visited Endpoints:")
-        
-        for rank, (endpoint, count) in enumerate(self.endpoint_counter.most_common(top_n), 1):
-            print(f"  {rank:<2}. {endpoint:<30} -> {count} hits")
+        BLUE = "\033[94m"
+        GREEN = "\033[92m"
+        YELLOW = "\033[93m"
+        RED = "\033[91m"
+        CYAN = "\033[96m"
+        RESET = "\033[0m"
+        BOLD = "\033[1m"
+        DIM = "\033[2m"
 
-        print(f"-------------------------------------------------------------")
-        print(f"Hourly Traffic Distribution:")
+        time_window = f"{start_hour:02d}:00 - {end_hour:02d}:59" if start_hour is not None and end_hour is not None else "All Hours"
+
+        print(f"\n{BLUE}{BOLD}============================================================={RESET}")
+        print(f"{BLUE}{BOLD}                ACCESS LOG ANALYSIS REPORT                   {RESET}")
+        print(f"{BLUE}{BOLD}============================================================={RESET}")
         
-        for hour in sorted(hours := [f"{h:02d}" for h in range(24)]):
+        print(f"{BOLD}✔ File Processing Summary:{RESET}")
+        print(f"  • Total Lines Processed:   {BOLD}{total_lines:<10}{RESET}")
+        print(f"  • Corrupted Lines Skipped: {RED if corrupted_lines > 0 else GREEN}{corrupted_lines:<10}{RESET}{DIM}(Malformed regex rows){RESET}")
+        print(f"  • Time-Filtered Out:       {YELLOW if filtered_out_lines > 0 else GREEN}{filtered_out_lines:<10}{RESET}{DIM}(Outside active window){RESET}")
+        print(f"  • Active Time Window:      {CYAN}{time_window}{RESET}")
+        print(f"  • Successful Requests:     {GREEN}{BOLD}{self.total_requests:<10}{RESET}{DIM}(Analyzed traffic){RESET}")
+        print(f"{BLUE}-------------------------------------------------------------{RESET}")
+        
+        print(f"{BOLD}📊 Core Metrics:{RESET}")
+        print(f"  • Unique IP Addresses:     {YELLOW}{BOLD}{len(self.unique_ips):<10}{RESET}")
+        print(f"  • Total Errors (4xx/5xx):  {RED if self.error_count > 0 else GREEN}{BOLD}{self.error_count:<10}{RESET}{RED if self.error_count > 0 else GREEN}({error_rate:.2f}%){RESET}")
+        print(f"{BLUE}-------------------------------------------------------------{RESET}")
+        
+        print(f"{BOLD}🔥 Top {top_n} Most Visited Endpoints:{RESET}")
+        if self.endpoint_counter:
+            for rank, (endpoint, count) in enumerate(self.endpoint_counter.most_common(top_n), 1):
+                print(f"  {CYAN}{rank:<2}{RESET}. {endpoint:<35} -> {GREEN}{count:<6}{RESET} hits")
+        else:
+            print(f"  {DIM}No endpoint hits found in this active window.{RESET}")
+            
+        print(f"{BLUE}-------------------------------------------------------------{RESET}")
+        
+        print(f"{BOLD}🕒 Hourly Traffic Distribution (Text Summary):{RESET}")
+        active_hours = 0
+        for hour in sorted([f"{h:02d}" for h in range(24)]):
             count = self.hourly_counter[hour]
             if count > 0:
-                print(f"  {hour}:00 - {hour}:59  -> {count:<5} requests")
+                active_hours += 1
+                print(f"  • {hour}:00 - {hour}:59  -> {YELLOW}{count:<6}{RESET} requests")
+                
+        if active_hours == 0:
+            print(f"  {DIM}No requests captured for the active hours.{RESET}")
+            
+        print(f"{BLUE}-------------------------------------------------------------{RESET}")
         
         self._generate_hourly_chart()
-        
-        print(f"=============================================================\n")
+
+        print(f"{BLUE}-------------------------------------------------------------{RESET}")
 
     def _generate_hourly_chart(self):
         """
