@@ -3,6 +3,7 @@ import os
 import sys
 
 from models import LogEntry
+from stats import LogStats
 
 def process_log_file(file_path):
     """
@@ -10,6 +11,8 @@ def process_log_file(file_path):
     """
     total_lines = 0
     corrupted_lines = 0
+
+    stats = LogStats()
     
     with open(file_path, 'r', encoding='utf-8') as file:
         for line in file:
@@ -20,11 +23,15 @@ def process_log_file(file_path):
             if entry is None:
                 corrupted_lines += 1
                 continue
+            
+            stats.update(entry)
 
             successful_count = total_lines - corrupted_lines
             if successful_count <= 5:
                 entry.print_details(successful_count)
                 
+    stats.print_report(total_lines, corrupted_lines)
+    
     print(f"--- Processing Statistics ---")
     print(f"Total lines read: {total_lines}")
     print(f"Corrupted lines skipped: {corrupted_lines}")
