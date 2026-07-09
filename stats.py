@@ -79,3 +79,16 @@ class LogStats:
         plt.savefig(chart_filename, dpi=300, bbox_inches='tight')
         plt.close()
         print(f"Success: Hourly traffic chart saved as '{chart_filename}'")
+
+    def to_dict(self, top_n=10):
+        """
+        Returns the statistical data as a clean dictionary for JSON export.
+        """
+        hours = [f"{h:02d}" for h in range(24)]
+        return {
+            "total_requests": self.total_requests,
+            "unique_ips_count": len(self.unique_ips),
+            "error_count": self.error_count,
+            "top_endpoints": [{"endpoint": ep, "hits": count} for ep, count in self.endpoint_counter.most_common(top_n)],
+            "hourly_traffic": {h: self.hourly_counter[h] for h in hours if self.hourly_counter[h] > 0}
+        }

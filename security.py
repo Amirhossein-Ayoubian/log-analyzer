@@ -63,3 +63,25 @@ class SecurityDetector:
             print("  No server error spikes detected. Infrastructure is stable.")
 
         print(f"=============================================================\n")
+
+    def to_dict(self):
+        """
+        Returns security alerts as a clean dictionary for JSON export.
+        """
+        brute_force_alerts = []
+        for ip, failed_count in self.failed_login_counter.items():
+            if failed_count > self.auth_threshold:
+                brute_force_alerts.append({"ip": ip, "failed_attempts": failed_count})
+
+        error_spikes = []
+        for hour in sorted(self.hourly_total_counter.keys()):
+            total = self.hourly_total_counter[hour]
+            errors = self.hourly_5xx_counter[hour]
+            rate = (errors / total * 100) if total > 0 else 0.0
+            if rate > self.error_spike_threshold:
+                error_spikes.append({"hour": f"{hour}:00-{hour}:59", "error_rate_percentage": round(rate, 2), "failed_requests": errors})
+
+        return {
+            "brute_force_alerts": brute_force_alerts,
+            "server_error_spikes": error_spikes
+        }
